@@ -34,10 +34,13 @@ const students = [
     },
 ];
 
+// Tailwind rotation classes
+const rotations = ['-rotate-2', 'rotate-1', '-rotate-1', 'rotate-3', '-rotate-3', 'rotate-2'];
+
 export default function Featured() {
     return (
-        <section className="w-full max-w-6xl mx-auto py-16 px-2 sm:px-4">
-            <div className="flex flex-col sm:flex-row items-center justify-between mb-8 gap-4">
+        <section className="w-full max-w-6xl mx-auto py-16 px-4 sm:px-6">
+            <div className="flex flex-col sm:flex-row items-center justify-between mb-12 gap-4">
                 <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-blue-700 flex items-center gap-2">
                     <span role="img" aria-label="star">🌟</span> Featured Students
                 </h2>
@@ -45,19 +48,54 @@ export default function Featured() {
                     🔀 Shuffle
                 </button>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 md:gap-8 place-items-center">
                 {students.map((student, idx) => (
-                    <PolaroidCard key={idx} {...student} />
+                    <PolaroidCard 
+                        key={idx} 
+                        {...student} 
+                        rotation={rotations[idx % rotations.length]}
+                        index={idx}
+                    />
                 ))}
             </div>
         </section>
     );
 }
 
-function PolaroidCard({ name, quote, img, likes }: { name: string; quote: string; img: string; likes: number }) {
+function PolaroidCard({ 
+    name, 
+    quote, 
+    img, 
+    likes, 
+    rotation, 
+    index 
+}: { 
+    name: string; 
+    quote: string; 
+    img: string; 
+    likes: number;
+    rotation: string;
+    index: number;
+}) {
     return (
-        <div className="bg-white rounded-2xl shadow-xl border border-gray-200 overflow-hidden flex flex-col items-center hover:scale-105 hover:shadow-2xl transition-all duration-300 rotate-[-2deg] card w-full max-w-xs mx-auto">
-            <div className="relative w-full h-40 sm:h-48">
+        <div 
+            className={`
+                bg-white rounded-lg shadow-lg border-8 border-white 
+                overflow-hidden flex flex-col 
+                hover:scale-110 hover:shadow-2xl hover:rotate-0
+                transition-all duration-500 ease-out
+                w-64 h-80 
+                ${rotation}
+                opacity-0 translate-y-8
+                animate-[fadeInUp_0.8s_ease-out_forwards]
+            `}
+            style={{ 
+                animationDelay: `${index * 100}ms`,
+                filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.15))'
+            }}
+        >
+            {/* Photo area */}
+            <div className="relative w-full h-48 bg-gray-100">
                 <Image
                     src={img}
                     alt={name}
@@ -65,17 +103,30 @@ function PolaroidCard({ name, quote, img, likes }: { name: string; quote: string
                     width={600}
                     height={600}
                     priority={true}
+           
                 />
+                {/* Fallback gradient */}
+                <div className="w-full h-full bg-gradient-to-br from-blue-200 to-blue-300 hidden items-center justify-center absolute top-0 left-0">
+                    <span className="text-white text-4xl">👤</span>
+                </div>
             </div>
-            <div className="p-4 w-full flex flex-col items-center">
-                <span className="font-bold text-base sm:text-lg text-gray-900 mb-1">{name}</span>
-                <span className="italic text-blue-700 text-sm sm:text-base text-center mb-2">“{quote}”</span>
-                <span className="flex items-center gap-1 text-xs text-pink-600 font-semibold">
-                    <span role="img" aria-label="heart">❤️</span> {likes}
-                </span>
+            
+            {/* White space at bottom like a real polaroid */}
+            <div className="p-4 bg-white flex-1 flex flex-col justify-center text-center">
+                <h3 className="font-bold text-lg text-gray-900 mb-2">
+                    {name}
+                </h3>
+                <p className="text-sm text-blue-700 italic leading-relaxed mb-3">
+                    "{quote}"
+                </p>
+                <div className="flex items-center justify-center gap-1 text-sm text-pink-600 font-semibold">
+                    <span role="img" aria-label="heart">❤️</span> 
+                    <span>{likes}</span>
+                </div>
             </div>
+
+            {/* Optional tape effect */}
+            <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-12 h-6 bg-yellow-200 opacity-60 rounded-sm shadow-sm rotate-12"></div>
         </div>
     );
 }
-
-// .card { background: white; border-radius: 1rem; box-shadow: 0 8px 16px rgba(0,0,0,0.1); overflow: hidden; } 
