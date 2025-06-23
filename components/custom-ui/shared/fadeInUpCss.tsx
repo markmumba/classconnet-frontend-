@@ -39,7 +39,7 @@ export function FadeInUpCSS({
         },
         {
           threshold,
-          rootMargin: '50px',
+          rootMargin: '0px',
         }
       );
   

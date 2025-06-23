@@ -1,5 +1,7 @@
+'use client'
 import Image from 'next/image';
 import React from 'react';
+import { FadeInUpCSS } from '../shared/fadeInUpCss';
 
 
 
@@ -39,12 +41,24 @@ export default function About() {
                     <span role="img" aria-label="features">✨</span> Key Features
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4">
+                    <FadeInUpCSS>
                     <Feature icon="🔐" title="Authentication" desc="Sign up with school email, login/logout." />
+                    </FadeInUpCSS>
+                    <FadeInUpCSS>
                     <Feature icon="👤" title="Profile Setup" desc="Upload photo, add quote, answer fun questions, state aspirations." />
+                    </FadeInUpCSS>
+                    <FadeInUpCSS>
                     <Feature icon="🤝" title="Social Graph" desc="Add friends, visualize your clique, share invites." />
+                    </FadeInUpCSS>
+                    <FadeInUpCSS>
                     <Feature icon="💬" title="Quote Interaction" desc="Like quotes, see the most liked quote." />
+                    </FadeInUpCSS>
+                    <FadeInUpCSS>
                     <Feature icon="🔍" title="Explore Classmates" desc="Filter by path or school, view daily student grid." />
+                    </FadeInUpCSS>
+                    <FadeInUpCSS>
                     <Feature icon="💌" title="Invite System" desc="Send invites, track invited friends." />
+                    </FadeInUpCSS>
                 </div>
             </div>
         </section>

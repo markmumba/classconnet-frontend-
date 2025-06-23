@@ -1,5 +1,6 @@
+'use client'
 import React from 'react';
-import { Badge } from '../../ui/badge';
+import { Badge } from '@/components/ui/badge';
 import { Button } from "@/components/ui/button";
 
 const steps = [
@@ -27,6 +28,7 @@ const steps = [
 
 export default function HowItWorks() {
   return (
+
     <section className="w-full max-w-3xl md:max-w-6xl lg:max-w-7xl mx-auto py-16 md:py-24 px-2 sm:px-4">
       <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-blue-700 mb-10 md:mb-16 text-center flex items-center justify-center gap-2">
         <span role="img" aria-label="compass">🧭</span> How It Works
@@ -45,7 +47,7 @@ export default function HowItWorks() {
             className="md:stroke-[6] lg:stroke-[8]"
           />
         </svg>
-        
+
         {/* Step 1: Sign Up */}
         <div className="absolute flex flex-col items-center md:items-start" 
              style={{
