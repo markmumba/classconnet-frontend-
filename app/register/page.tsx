@@ -1,4 +1,5 @@
-import { useRef, useState } from "react";
+"use client"
+import { useEffect, useRef, useState } from "react";
 import * as z from "zod/v4";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -6,9 +7,9 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { AuthEndpoints } from "@/lib/api/service";
-import { RegisterResponse, RegistrationData } from "@/lib/api/types";
-import { useMutation } from "@tanstack/react-query";
+import { AuthEndpoints, SchoolEndpoints } from "@/lib/api/service";
+import { DepartmentList, RegisterResponse, RegistrationData, SchoolList } from "@/lib/api/types";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import useAuthStore from "@/lib/store";
 import { toast } from "sonner";
@@ -16,11 +17,11 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Camera, GraduationCap, School, Upload, Users } from "lucide-react";
 
 const step1Schema = z.object({
-    school: z.string().min(2, "Please select a school")
+    school: z.string().min(1, "Please select your school"),
 })
 
 const step2Schema = z.object({
-    sub_school: z.string().min(2, "Please select your department")
+    sub_school: z.string().min(1, "Please select your department"),
 })
 
 const step3Schema = z.object({
@@ -79,6 +80,37 @@ export default function ClassConnectRegisterFlow() {
     })
     const [previewImage, setPreviewImage] = useState<string | null>(null)
     const fileInputRef = useRef<HTMLInputElement>(null)
+    const [schools, setSchools] = useState<SchoolList[]>([])
+    const [departments, setDepartments] = useState<DepartmentList[]>([])
+
+    const selectedSchool = schools.find(school => school.id === Number(formData.school))
+    const schoolDomain = selectedSchool?.email_domain || ""
+    console.log(schoolDomain)
+
+    const { data: schoolsData } = useQuery({
+        queryKey: ["schools"],
+        queryFn: () => SchoolEndpoints.getSchools()
+    })
+
+    const { data: departmentsData } = useQuery({
+        queryKey: ["departments", formData.school],
+        queryFn: () => SchoolEndpoints.getDepartments(formData.school),
+        enabled: !!formData.school
+    })
+
+    useEffect(() => {
+        if (schoolsData) {
+            setSchools(schoolsData)
+
+        }
+    }, [schoolsData])
+
+    useEffect(() => {
+        if (departmentsData) {
+            setDepartments(departmentsData)
+        }
+    }, [departmentsData])
+
 
     const step1Form = useForm<step1Data>({
         resolver: zodResolver(step1Schema),
@@ -136,6 +168,13 @@ export default function ClassConnectRegisterFlow() {
     }
 
     const handleStep3Submit = (data: step3Data) => {
+        if (schoolDomain && !data.email.endsWith(`@${schoolDomain}`)) {
+            step3Form.setError("email", {
+                type: "manual",
+                message: `Email must end with @${schoolDomain}`
+            })
+            return
+        }
         setFormData(prev => ({ ...prev, ...data }))
         setCurrentStep(4)
     }
@@ -198,32 +237,33 @@ export default function ClassConnectRegisterFlow() {
     }
 
     return (
-        <div className="min-h-screen flex">
-            <div className="w-1/2 bg-gradient-to-br from-blue-600 to-blue-800 flex flex-col justify-center items-center text-white p-12">
-                <div className="text-center max-w-md">
-                    <GraduationCap className="w-20 h-20 mx-auto mb-6 opacity-90" />
-                    <h1 className="text-4xl font-bold mb-4 leading-tight">
+        <div className="min-h-screen flex flex-col md:flex-row overflow-x-hidden bg-gray-50 px-0 sm:px-0 md:px-0 py-safe">
+            {/* Left/Top Banner */}
+            <div className="w-full md:w-1/2 bg-gradient-to-br from-blue-500 to-blue-800 flex flex-col justify-center items-center text-white px-4 sm:px-8 md:px-12 py-8 md:py-12 min-h-[220px] md:min-h-screen">
+                <div className="text-center max-w-md w-full">
+                    <GraduationCap className="w-14 h-14 md:w-20 md:h-20 mx-auto mb-4 md:mb-6 opacity-90" />
+                    <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2 md:mb-4 leading-tight">
                         Ready to See Your Graduating Class?
                     </h1>
-                    <p className="text-xl opacity-90 leading-relaxed">
+                    <p className="text-base sm:text-lg md:text-xl opacity-90 leading-relaxed">
                         Connect with classmates, share memories, and celebrate your journey together in our digital yearbook.
                     </p>
-                    <div className="mt-8 flex items-center justify-center space-x-2 text-blue-200">
-                        <Users className="w-5 h-5" />
-                        <span className="text-sm">Join thousands of students already connected</span>
+                    <div className="mt-4 md:mt-8 flex items-center justify-center space-x-2 text-blue-200">
+                        <Users className="w-4 h-4 md:w-5 md:h-5" />
+                        <span className="text-xs sm:text-sm">Join thousands of students already connected</span>
                     </div>
                 </div>
             </div>
 
-            <div className="w-1/2 flex flex-col justify-center items-center bg-gray-50 p-12">
-                <div className="w-full max-w-md">
-
+            {/* Right/Bottom Form Area (no card) */}
+            <div className="w-full md:w-1/2 flex flex-col justify-center items-center bg-gray-50 px-2 sm:px-4 md:px-12 py-8 md:py-12 gap-0 md:gap-8">
+                <div className="w-full max-w-md mx-auto px-4 sm:px-6 md:px-0">
                     {currentStep === 1 && (
                         <div className="space-y-6">
                             <div className="text-center mb-8">
                                 <School className="w-12 h-12 mx-auto text-blue-600 mb-4" />
-                                <h2 className="text-2xl font-bold text-gray-900 mb-2">Which school were you in?</h2>
-                                <p className="text-gray-600">Let's start by finding your institution</p>
+                                <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-2">Which school were you in?</h2>
+                                <p className="text-xs sm:text-sm text-gray-600">Select your institution from our list</p>
                             </div>
 
                             <Form {...step1Form}>
@@ -234,11 +274,18 @@ export default function ClassConnectRegisterFlow() {
                                         render={({ field }) => (
                                             <FormItem>
                                                 <FormControl>
-                                                    <Input
-                                                        placeholder="Enter your school name (e.g., Harvard University)"
-                                                        className="text-lg py-3 px-4"
-                                                        {...field}
-                                                    />
+                                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                        <SelectTrigger className="w-full text-sm sm:text-lg h-10 sm:h-14 py-2 sm:py-3 px-3 sm:px-4 rounded-xl border-2 border-blue-200 bg-white shadow-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-all">
+                                                            <SelectValue placeholder="Select your school" />
+                                                        </SelectTrigger>
+                                                        <SelectContent className="bg-white shadow-xl rounded-xl border border-blue-200 z-50">
+                                                            {schools?.map((school) => (
+                                                                <SelectItem key={school.id} value={school.id.toString()} >
+                                                                    {school.name}
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectContent>
+                                                    </Select>
                                                 </FormControl>
                                                 <FormMessage />
                                             </FormItem>
@@ -247,22 +294,29 @@ export default function ClassConnectRegisterFlow() {
 
                                     <Button
                                         type="submit"
-                                        className="w-full bg-blue-600 hover:bg-blue-700 text-lg py-3"
+                                        disabled={!schools || schools.length === 0}
+                                        className="w-full bg-blue-600 hover:bg-blue-700 text-sm sm:text-base py-2 sm:py-3"
                                     >
                                         Next <ArrowRight className="w-5 h-5 ml-2" />
                                     </Button>
                                 </form>
                             </Form>
+
+                            {!schools && (
+                                <div className="text-center text-gray-500">
+                                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                                    <p className="mt-2">Loading schools...</p>
+                                </div>
+                            )}
                         </div>
                     )}
 
-                    {/* Step 2: Department Selection */}
                     {currentStep === 2 && (
                         <div className="space-y-6">
                             <div className="text-center mb-8">
                                 <School className="w-12 h-12 mx-auto text-blue-600 mb-4" />
-                                <h2 className="text-2xl font-bold text-gray-900 mb-2">Which department?</h2>
-                                <p className="text-gray-600">Tell us your specific college or department</p>
+                                <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-2">Which department?</h2>
+                                <p className="text-xs sm:text-sm text-gray-600">Select your specific college or department</p>
                             </div>
 
                             <Form {...step2Form}>
@@ -273,11 +327,18 @@ export default function ClassConnectRegisterFlow() {
                                         render={({ field }) => (
                                             <FormItem>
                                                 <FormControl>
-                                                    <Input
-                                                        placeholder="Enter your department (e.g., College of Engineering)"
-                                                        className="text-lg py-3 px-4"
-                                                        {...field}
-                                                    />
+                                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                        <SelectTrigger className="w-full text-sm sm:text-lg h-10 sm:h-14 py-2 sm:py-3 px-3 sm:px-4 rounded-xl border-2 border-blue-200 bg-white shadow-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-all">
+                                                            <SelectValue placeholder="Select your department" />
+                                                        </SelectTrigger>
+                                                        <SelectContent className="bg-white shadow-xl rounded-xl border border-blue-200 z-50">
+                                                            {departments?.map((department) => (
+                                                                <SelectItem key={department.id} value={department.id.toString()}>
+                                                                    {department.name}
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectContent>
+                                                    </Select>
                                                 </FormControl>
                                                 <FormMessage />
                                             </FormItem>
@@ -286,12 +347,26 @@ export default function ClassConnectRegisterFlow() {
 
                                     <Button
                                         type="submit"
-                                        className="w-full bg-blue-600 hover:bg-blue-700 text-lg py-3"
+                                        disabled={!departments || departments.length === 0}
+                                        className="w-full bg-blue-600 hover:bg-blue-700 text-sm sm:text-base py-2 sm:py-3"
                                     >
                                         Next <ArrowRight className="w-5 h-5 ml-2" />
                                     </Button>
                                 </form>
                             </Form>
+
+                            {!departments && formData.school && (
+                                <div className="text-center text-gray-500">
+                                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                                    <p className="mt-2">Loading departments...</p>
+                                </div>
+                            )}
+
+                            {departments && departments.length === 0 && (
+                                <div className="text-center text-gray-500">
+                                    <p>No departments found for this school.</p>
+                                </div>
+                            )}
                         </div>
                     )}
 
@@ -299,8 +374,8 @@ export default function ClassConnectRegisterFlow() {
                         <div className="space-y-6">
                             <div className="text-center mb-8">
                                 <Users className="w-12 h-12 mx-auto text-blue-600 mb-4" />
-                                <h2 className="text-2xl font-bold text-gray-900 mb-2">Tell us about yourself</h2>
-                                <p className="text-gray-600">Use your school email domain for verification</p>
+                                <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-2">Tell us about yourself</h2>
+                                <p className="text-xs sm:text-sm text-gray-600">Use your school email domain for verification</p>
                             </div>
 
                             <Form {...step3Form}>
@@ -312,9 +387,15 @@ export default function ClassConnectRegisterFlow() {
                                             <FormItem>
                                                 <FormLabel>School Email</FormLabel>
                                                 <FormControl>
-                                                    <Input placeholder="john.doe@university.edu" {...field} />
+                                                    <Input
+                                                        placeholder={schoolDomain ? `john.doe@${schoolDomain}` : "john.doe@university.edu"}
+                                                        {...field}
+                                                        className="w-full text-sm sm:text-lg h-10 sm:h-14 py-2 sm:py-3 px-3 sm:px-4 rounded-xl border-2 border-blue-200 bg-white shadow-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-all"
+                                                    />
                                                 </FormControl>
-                                                <FormDescription>Must match your school's domain</FormDescription>
+                                                <FormDescription>
+                                                    {schoolDomain ? `Must end with @${schoolDomain}` : "Must match your school's domain"}
+                                                </FormDescription>
                                                 <FormMessage />
                                             </FormItem>
                                         )}
@@ -328,7 +409,11 @@ export default function ClassConnectRegisterFlow() {
                                                 <FormItem>
                                                     <FormLabel>First Name</FormLabel>
                                                     <FormControl>
-                                                        <Input placeholder="John" {...field} />
+                                                        <Input
+                                                            className="w-full text-sm sm:text-lg h-10 sm:h-14 py-2 sm:py-3 px-3 sm:px-4 rounded-xl border-2 border-blue-200 bg-white shadow-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-all"
+                                                            placeholder="John"
+                                                            {...field}
+                                                        />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
@@ -342,7 +427,11 @@ export default function ClassConnectRegisterFlow() {
                                                 <FormItem>
                                                     <FormLabel>Last Name</FormLabel>
                                                     <FormControl>
-                                                        <Input placeholder="Doe" {...field} />
+                                                        <Input
+                                                            className="w-full text-sm sm:text-lg h-10 sm:h-14 py-2 sm:py-3 px-3 sm:px-4 rounded-xl border-2 border-blue-200 bg-white shadow-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-all"
+                                                            placeholder="Doe"
+                                                            {...field}
+                                                        />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
@@ -358,7 +447,11 @@ export default function ClassConnectRegisterFlow() {
                                                 <FormItem>
                                                     <FormLabel>Student ID</FormLabel>
                                                     <FormControl>
-                                                        <Input placeholder="12345678" {...field} />
+                                                        <Input
+                                                            className="w-full text-sm sm:text-lg h-10 sm:h-14 py-2 sm:py-3 px-3 sm:px-4 rounded-xl border-2 border-blue-200 bg-white shadow-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-all"
+                                                            placeholder="12345678"
+                                                            {...field}
+                                                        />
                                                     </FormControl>
                                                     <FormMessage />
                                                 </FormItem>
@@ -373,7 +466,7 @@ export default function ClassConnectRegisterFlow() {
                                                     <FormLabel>Graduation Year</FormLabel>
                                                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                                                         <FormControl>
-                                                            <SelectTrigger>
+                                                            <SelectTrigger className="w-full text-sm sm:text-lg h-10 sm:h-14 py-2 sm:py-3 px-3 sm:px-4 rounded-xl border-2 border-blue-200 bg-white shadow-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-all">
                                                                 <SelectValue placeholder="Year" />
                                                             </SelectTrigger>
                                                         </FormControl>
@@ -396,7 +489,11 @@ export default function ClassConnectRegisterFlow() {
                                             <FormItem>
                                                 <FormLabel>Major</FormLabel>
                                                 <FormControl>
-                                                    <Input placeholder="Computer Science" {...field} />
+                                                    <Input
+                                                        className="w-full text-sm sm:text-lg h-10 sm:h-14 py-2 sm:py-3 px-3 sm:px-4 rounded-xl border-2 border-blue-200 bg-white shadow-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-all"
+                                                        placeholder="Computer Science"
+                                                        {...field}
+                                                    />
                                                 </FormControl>
                                                 <FormMessage />
                                             </FormItem>
@@ -410,7 +507,11 @@ export default function ClassConnectRegisterFlow() {
                                             <FormItem>
                                                 <FormLabel>Career Path</FormLabel>
                                                 <FormControl>
-                                                    <Input placeholder="Software Engineer" {...field} />
+                                                    <Input
+                                                        className="w-full text-sm sm:text-lg h-10 sm:h-14 py-2 sm:py-3 px-3 sm:px-4 rounded-xl border-2 border-blue-200 bg-white shadow-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-all"
+                                                        placeholder="Software Engineer"
+                                                        {...field}
+                                                    />
                                                 </FormControl>
                                                 <FormMessage />
                                             </FormItem>
@@ -419,7 +520,7 @@ export default function ClassConnectRegisterFlow() {
 
                                     <Button
                                         type="submit"
-                                        className="w-full bg-blue-600 hover:bg-blue-700 text-lg py-3 mt-6"
+                                        className="w-full bg-blue-600 hover:bg-blue-700 text-sm sm:text-base py-2 sm:py-3"
                                     >
                                         Next <ArrowRight className="w-5 h-5 ml-2" />
                                     </Button>
@@ -432,8 +533,8 @@ export default function ClassConnectRegisterFlow() {
                         <div className="space-y-6">
                             <div className="text-center mb-8">
                                 <GraduationCap className="w-12 h-12 mx-auto text-blue-600 mb-4" />
-                                <h2 className="text-2xl font-bold text-gray-900 mb-2">What will be your graduating quote?</h2>
-                                <p className="text-gray-600">Share something meaningful that represents your journey</p>
+                                <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-2">What will be your graduating quote?</h2>
+                                <p className="text-xs sm:text-sm text-gray-600">Share something meaningful that represents your journey</p>
                             </div>
 
                             <Form {...step4Form}>
@@ -445,9 +546,8 @@ export default function ClassConnectRegisterFlow() {
                                             <FormItem>
                                                 <FormControl>
                                                     <Textarea
+                                                        className="w-full min-h-[120px] text-sm sm:text-lg p-4 rounded-xl border-2 border-blue-200 bg-white shadow-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-all"
                                                         placeholder="Enter your inspiring quote that will appear in your yearbook profile..."
-                                                        className="min-h-[120px] text-lg p-4"
-                                                        maxLength={255}
                                                         {...field}
                                                     />
                                                 </FormControl>
@@ -461,7 +561,7 @@ export default function ClassConnectRegisterFlow() {
 
                                     <Button
                                         type="submit"
-                                        className="w-full bg-blue-600 hover:bg-blue-700 text-lg py-3"
+                                        className="w-full bg-blue-600 hover:bg-blue-700 text-sm sm:text-base py-2 sm:py-3"
                                     >
                                         Next <ArrowRight className="w-5 h-5 ml-2" />
                                     </Button>
@@ -474,8 +574,8 @@ export default function ClassConnectRegisterFlow() {
                         <div className="space-y-6">
                             <div className="text-center mb-8">
                                 <Camera className="w-12 h-12 mx-auto text-blue-600 mb-4" />
-                                <h2 className="text-2xl font-bold text-gray-900 mb-2">Add a photo your friends will identify you with</h2>
-                                <p className="text-gray-600">This will be your profile picture in the yearbook</p>
+                                <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-2">Add a photo your friends will identify you with</h2>
+                                <p className="text-xs sm:text-sm text-gray-600">This will be your profile picture in the yearbook</p>
                             </div>
 
                             <Form {...step5Form}>
@@ -532,7 +632,7 @@ export default function ClassConnectRegisterFlow() {
                                     />
                                     <Button
                                         type="submit"
-                                        className="w-full bg-blue-600 hover:bg-blue-700 text-lg py-3"
+                                        className="w-full bg-blue-600 hover:bg-blue-700 text-sm sm:text-base py-2 sm:py-3"
                                     >
                                         Next <ArrowRight className="w-5 h-5 ml-2" />
                                     </Button>
@@ -550,7 +650,10 @@ export default function ClassConnectRegisterFlow() {
                                         <FormItem>
                                             <FormLabel>Password</FormLabel>
                                             <FormControl>
-                                                <Input type="password" {...field} />
+                                                <Input type="password"
+                                                    className="w-full text-sm sm:text-lg h-10 sm:h-14 py-2 sm:py-3 px-3 sm:px-4 rounded-xl border-2 border-blue-200 bg-white shadow-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-all"
+                                                    {...field}
+                                                />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
@@ -563,20 +666,23 @@ export default function ClassConnectRegisterFlow() {
                                         <FormItem>
                                             <FormLabel>Confirm Password</FormLabel>
                                             <FormControl>
-                                                <Input type="password" {...field} />
+                                                <Input type="password"
+                                                    className="w-full text-sm sm:text-lg h-10 sm:h-14 py-2 sm:py-3 px-3 sm:px-4 rounded-xl border-2 border-blue-200 bg-white shadow-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-all"
+                                                    {...field}
+                                                />
                                             </FormControl>
                                             <FormMessage />
                                         </FormItem>
                                     )}
                                 />
                                 <Button
-                                        type="submit"
-                                        disabled={isSubmitting}
-                                        className="w-full bg-blue-600 hover:bg-blue-700 text-lg py-3"
-                                    >
-                                        {isSubmitting ? "Creating Profile..." : "Create My Profile"}
-                                        <GraduationCap className="w-5 h-5 ml-2" />
-                                    </Button>
+                                    type="submit"
+                                    disabled={isSubmitting}
+                                    className="w-full bg-blue-600 hover:bg-blue-700 text-sm sm:text-base py-2 sm:py-3"
+                                >
+                                    {isSubmitting ? "Creating Profile..." : "Create My Profile"}
+                                    <GraduationCap className="w-5 h-5 ml-2" />
+                                </Button>
                             </form>
                         </Form>
                     )}

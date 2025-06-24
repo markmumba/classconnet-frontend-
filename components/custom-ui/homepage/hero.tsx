@@ -3,8 +3,10 @@
 import { useState, useRef } from 'react';
 import { Play, Pause, Volume2 } from 'lucide-react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 
 export default function Hero() {
+    const router = useRouter();
     const [isPlaying, setIsPlaying] = useState(false);
     const [isMuted, setIsMuted] = useState(false);
     const audioRef = useRef<HTMLAudioElement>(null);
@@ -29,7 +31,6 @@ export default function Hero() {
 
     return (
         <section className="relative w-full min-h-screen flex flex-col lg:flex-row items-center justify-center overflow-hidden bg-gradient-to-br from-blue-50 via-white to-blue-100 pb-16 px-4 lg:px-8">
-            {/* Audio element */}
             <audio
                 ref={audioRef}
                 loop
@@ -59,10 +60,10 @@ export default function Hero() {
                     A modern, social yearbook for your class. Share memories, connect, and celebrate your journey together.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 w-full justify-center lg:justify-start mb-4">
-                    <button className="px-7 py-3 rounded-xl bg-blue-600 text-white font-semibold shadow-md hover:bg-blue-700 hover:scale-105 transition-all border border-blue-700/20 backdrop-blur-sm focus:ring-2 focus:ring-blue-400">
+                    <button onClick={() => router.push('/register')} className="px-7 py-3 rounded-xl bg-blue-600 text-white font-semibold shadow-md hover:bg-blue-700 hover:scale-105 transition-all border border-blue-700/20 backdrop-blur-sm focus:ring-2 focus:ring-blue-400">
                         Upload Your Story
                     </button>
-                    <button className="px-7 py-3 rounded-xl bg-white/80 text-blue-700 font-semibold shadow-md hover:bg-blue-100 hover:scale-105 transition-all border border-blue-700/10 backdrop-blur-sm focus:ring-2 focus:ring-blue-200">
+                    <button onClick={() => router.push('/register')} className="px-7 py-3 rounded-xl bg-white/80 text-blue-700 font-semibold shadow-md hover:bg-blue-100 hover:scale-105 transition-all border border-blue-700/10 backdrop-blur-sm focus:ring-2 focus:ring-blue-200">
                         Sign Up with School Email
                     </button>
                 </div>
