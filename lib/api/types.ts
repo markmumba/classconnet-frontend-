@@ -24,6 +24,11 @@ export interface LoginData {
     email: string;
     password: string;
 }
+export interface LoginResponse {
+    refresh: string;
+    access: string;
+    user: User;
+}
 
 export interface User {
     id: number;

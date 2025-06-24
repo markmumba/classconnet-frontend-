@@ -1,6 +1,6 @@
 
 import axios, {AxiosInstance} from "axios";
-import {DepartmentList, LoginData, RegisterResponse, RegistrationData, SchoolList} from "@/lib/api/types";
+import {DepartmentList, LoginData, LoginResponse, RegisterResponse, RegistrationData, SchoolList} from "@/lib/api/types";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -31,7 +31,7 @@ export const AuthEndpoints = {
         });
         return response.data;
     },
-    login: async (loginData:LoginData):Promise<void> => {
+    login: async (loginData:LoginData):Promise<LoginResponse> => {
         const response = await api.post('/auth/login/', loginData);
         return response.data;
     }

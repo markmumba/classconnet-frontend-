@@ -14,7 +14,8 @@ import { useRouter } from "next/navigation";
 import useAuthStore from "@/lib/store";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Camera, GraduationCap, School, Upload, Users } from "lucide-react";
+import { ArrowRight, Camera, GraduationCap,  School, Upload, Users } from "lucide-react";
+import Link from "next/link";
 
 const step1Schema = z.object({
     school: z.string().min(1, "Please select your school"),
@@ -481,9 +482,15 @@ export default function ClassConnectRegisterFlow() {
                                                                 <SelectValue placeholder="Year" />
                                                             </SelectTrigger>
                                                         </FormControl>
-                                                        <SelectContent>
+                                                        <SelectContent className="bg-white shadow-xl rounded-xl border border-blue-200 z-50">
                                                             {years.map(year => (
-                                                                <SelectItem key={year} value={year}>{year}</SelectItem>
+                                                                <SelectItem
+                                                                    key={year}
+                                                                    value={year}
+                                                                    className="hover:bg-blue-100 hover:text-blue-700 cursor-pointer"
+                                                                >
+                                                                    {year}
+                                                                </SelectItem>
                                                             ))}
                                                         </SelectContent>
                                                     </Select>
@@ -698,7 +705,9 @@ export default function ClassConnectRegisterFlow() {
                         </Form>
                     )}
 
+                
                 </div>
+            <p className="text-center text-gray-500 mt-6">Already have an account? <Link href="/login" className="text-blue-600 hover:text-blue-700 font-semibold">Login</Link></p>
             </div>
         </div>
     )
