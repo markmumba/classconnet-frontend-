@@ -82,10 +82,10 @@ export default function ClassConnectRegisterFlow() {
     const fileInputRef = useRef<HTMLInputElement>(null)
     const [schools, setSchools] = useState<SchoolList[]>([])
     const [departments, setDepartments] = useState<DepartmentList[]>([])
+    const [selectedSchool, setSelectedSchool] = useState<SchoolList | null>(null)
 
-    const selectedSchool = schools.find(school => school.id === Number(formData.school))
-    const schoolDomain = selectedSchool?.email_domain || ""
-    console.log(schoolDomain)
+    const schoolDomain = selectedSchool?.full_email_domain
+
 
     const { data: schoolsData } = useQuery({
         queryKey: ["schools"],
@@ -101,16 +101,26 @@ export default function ClassConnectRegisterFlow() {
     useEffect(() => {
         if (schoolsData) {
             setSchools(schoolsData)
-
+            const school = schoolsData.find(school => school.id === Number(formData.school))
+            if (school) {
+                setSelectedSchool(school)
+            }
         }
     }, [schoolsData])
 
     useEffect(() => {
         if (departmentsData) {
             setDepartments(departmentsData)
+
         }
     }, [departmentsData])
 
+    useEffect(() => {
+        if (schools.length && formData.school) {
+            const school = schools.find(school => school.id === Number(formData.school));
+            setSelectedSchool(school || null);
+        }
+    }, [schools, formData.school]);
 
     const step1Form = useForm<step1Data>({
         resolver: zodResolver(step1Schema),
@@ -168,10 +178,10 @@ export default function ClassConnectRegisterFlow() {
     }
 
     const handleStep3Submit = (data: step3Data) => {
-        if (schoolDomain && !data.email.endsWith(`@${schoolDomain}`)) {
+        if (schoolDomain && !data.email.endsWith(`${schoolDomain}`)) {
             step3Form.setError("email", {
                 type: "manual",
-                message: `Email must end with @${schoolDomain}`
+                message: `Email must end with ${schoolDomain}`
             })
             return
         }
@@ -181,7 +191,7 @@ export default function ClassConnectRegisterFlow() {
 
     const handleStep4Submit = (data: step4Data) => {
         setFormData(prev => ({ ...prev, ...data }))
-
+        setCurrentStep(5)
     }
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -222,6 +232,7 @@ export default function ClassConnectRegisterFlow() {
             return
         }
         setIsSubmitting(true)
+        console.log(formData)
         try {
             const submitData = new FormData()
             Object.keys(formData).forEach(key => {
@@ -388,13 +399,13 @@ export default function ClassConnectRegisterFlow() {
                                                 <FormLabel>School Email</FormLabel>
                                                 <FormControl>
                                                     <Input
-                                                        placeholder={schoolDomain ? `john.doe@${schoolDomain}` : "john.doe@university.edu"}
+                                                        placeholder={schoolDomain ? `john.doe${schoolDomain}` : "john.doe@university.edu"}
                                                         {...field}
                                                         className="w-full text-sm sm:text-lg h-10 sm:h-14 py-2 sm:py-3 px-3 sm:px-4 rounded-xl border-2 border-blue-200 bg-white shadow-sm focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-all"
                                                     />
                                                 </FormControl>
                                                 <FormDescription>
-                                                    {schoolDomain ? `Must end with @${schoolDomain}` : "Must match your school's domain"}
+                                                    {schoolDomain ? `Must end with ${schoolDomain}` : "Must match your school's domain"}
                                                 </FormDescription>
                                                 <FormMessage />
                                             </FormItem>

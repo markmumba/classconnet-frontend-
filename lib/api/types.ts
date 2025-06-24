@@ -38,7 +38,7 @@ export interface User {
 export interface SchoolList {
     id: number;
     name: string;
-    email_domain: string;
+    full_email_domain: string;
 }
 
 export interface DepartmentList {
