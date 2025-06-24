@@ -1,3 +1,8 @@
+export enum Role {
+    STUDENT = "student",
+    ADMIN = "admin",
+    SUPER_ADMIN = "super_admin",
+}
 export interface RegistrationData {
     school: string;
     sub_school: string;
@@ -16,7 +21,7 @@ export interface RegistrationData {
 export interface RegisterResponse {
     refresh: string;
     access: string;
-    user: User;
+    user: BasicUser;
 }
 
 
@@ -27,18 +32,31 @@ export interface LoginData {
 export interface LoginResponse {
     refresh: string;
     access: string;
-    user: User;
+    user: BasicUser;
 }
 
-export interface User {
-    id: number;
+export interface BasicUser {
+    id: string;
     email: string;
     first_name: string;
     last_name: string;
-    sub_school: number;
-    career_path: string;
-    quote: string;
+    school_id:string;
+    graduation_year:string;
+    role:string;
+    picture:string;
 }
+
+export interface User extends BasicUser {
+    school_name:string;
+    quote:string;
+    full_name:string;
+    date_joined:string;
+    career_path:string;
+    sub_school:string;
+    major:string;
+}
+
+
 
 export interface SchoolList {
     id: number;

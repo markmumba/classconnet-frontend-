@@ -233,7 +233,6 @@ export default function ClassConnectRegisterFlow() {
             return
         }
         setIsSubmitting(true)
-        console.log(formData)
         try {
             const submitData = new FormData()
             Object.keys(formData).forEach(key => {
@@ -708,6 +707,7 @@ export default function ClassConnectRegisterFlow() {
                 
                 </div>
             <p className="text-center text-gray-500 mt-6">Already have an account? <Link href="/login" className="text-blue-600 hover:text-blue-700 font-semibold">Login</Link></p>
+            <p className="text-center text-gray-500 mt-6">Go Home <Link href="/" className="text-blue-600 hover:text-blue-700 font-semibold">Home</Link></p>
             </div>
         </div>
     )
