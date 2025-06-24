@@ -1,12 +1,22 @@
 export interface RegistrationData {
+    school: string;
+    sub_school: string;
     email: string;
-    password: string;
     first_name: string;
     last_name: string;
-    sub_school: number;
+    student_id: string;
+    graduation_year: string;
+    password: string;
+    major: string;
     career_path: string;
     quote: string;
-    picture: File;
+    picture: File | null;
+}
+
+export interface RegisterResponse {
+    refresh: string;
+    access: string;
+    user: User;
 }
 
 
@@ -23,4 +33,15 @@ export interface User {
     sub_school: number;
     career_path: string;
     quote: string;
+}
+
+export interface SchoolList {
+    id: number;
+    name: string;
+    email_domain: string;
+}
+
+export interface DepartmentList {
+    id: number;
+    name: string;
 }

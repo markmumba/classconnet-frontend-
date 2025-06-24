@@ -1,6 +1,6 @@
 
 import axios, {AxiosInstance} from "axios";
-import {LoginData, RegistrationData} from "@/lib/api/types";
+import {LoginData, RegisterResponse, RegistrationData} from "@/lib/api/types";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -22,12 +22,27 @@ const api:AxiosInstance = axios.create({
 
 
 export const AuthEndpoints = {
-    register: async (registrationData:RegistrationData):Promise<void> => {
-        const response = await api.post('/auth/register/', registrationData);
+    register: async (registrationData:FormData):Promise<RegisterResponse> => {
+
+        const response = await api.post('/auth/register/', registrationData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
         return response.data;
     },
     login: async (loginData:LoginData):Promise<void> => {
         const response = await api.post('/auth/login/', loginData);
+        return response.data;
+    }
+}
+export const SchoolEndpoints = {
+    getSchools: async ():Promise<void> => {
+        const response = await api.get(`/public/schools/`);
+        return response.data;
+    },
+    getDepartments: async (schoolId:string):Promise<void> => {
+        const response = await api.get(`/public/departments/?school_id=${schoolId}`);
         return response.data;
     }
 }
