@@ -64,5 +64,9 @@ export const UserEndpoints = {
     getUserGraduateClass: async (): Promise<User[]> => {
         const response = await api.get(`/users/`);
         return response.data;
+    },
+    getUserById: async (id: string): Promise<User> => {
+        const response = await api.get(`/users/${id}/`);
+        return response.data;
     }
 }

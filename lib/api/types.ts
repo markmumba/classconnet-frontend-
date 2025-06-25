@@ -49,6 +49,8 @@ export interface BasicUser {
 export interface User extends BasicUser {
     school_name:string;
     quote:string;
+    student_id:string;
+    department:string;
     full_name:string;
     date_joined:string;
     career_path:string;

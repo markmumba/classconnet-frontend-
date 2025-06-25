@@ -1,12 +1,12 @@
 "use client"
 import { useQuery } from "@tanstack/react-query";
-import { ProtectedRoute } from "../protected";
-import { all } from "@/lib/utils";
 import { UserEndpoints } from "@/lib/api/service";
 import { useEffect, useState } from "react";
 import { User } from "@/lib/api/types";
 import { Camera } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
+import Link from "next/link";
 
 export default function DashboardPage() {
     const [searchTerm, setSearchTerm] = useState("");
@@ -30,79 +30,77 @@ export default function DashboardPage() {
 
     if (isLoading) {
         return (
-            <ProtectedRoute allowedRoles={all}>
-                <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-                    <div className="max-w-7xl mx-auto">
-                        <div className="text-center py-12">
-                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-                            <p className="mt-4 text-gray-600">Loading your graduating class...</p>
-                        </div>
-                    </div>
+            <div className="max-w-2xl mx-auto p-4 bg-white min-h-screen">
+                <div className="text-center py-12">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-300 mx-auto"></div>
+                    <p className="mt-4 text-gray-500 text-sm">Loading classmates...</p>
                 </div>
-            </ProtectedRoute>
+            </div>
         );
     }
 
     if (error) {
         return (
-            <ProtectedRoute allowedRoles={all}>
-                <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-                    <div className="max-w-7xl mx-auto">
-                        <div className="text-center py-12">
-                            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-                                <p>Error loading classmates. Please try again later.</p>
-                            </div>
-                        </div>
+            <div className="max-w-2xl mx-auto p-4 bg-white min-h-screen">
+                <div className="text-center py-12">
+                    <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded">
+                        <p>Error loading classmates: {error.message}</p>
                     </div>
                 </div>
-            </ProtectedRoute>
+            </div>
         );
     }
 
     return (
-            <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-                {/* Header */}
-               
-
-                {/* Main Content */}
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                    {filteredClassmates.length === 0 ? (
-                        <div className="text-center py-12">
-                            <Camera className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                            <h3 className="text-lg font-medium text-gray-900 mb-2">
-                                {searchTerm ? "No classmates found" : "No classmates yet"}
-                            </h3>
-                            <p className="text-gray-600">
-                                {searchTerm
-                                    ? "Try adjusting your search terms"
-                                    : "Your graduating class will appear here once they join"
-                                }
-                            </p>
-                            {searchTerm && (
-                                <Button
-                                    variant="outline"
-                                    onClick={() => setSearchTerm("")}
-                                    className="mt-4"
-                                >
-                                    Clear search
-                                </Button>
-                            )}
-                        </div>
-                    ) : (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 items-stretch">
-                            {filteredClassmates.map((classmate, index) => (
-                                <div
-                                    key={classmate.id}
-                                    className="animate-fadeInUp"
-                                    style={{ animationDelay: `${index * 0.1}s` }}
-                                >
-                                    <PolaroidCard classmate={classmate} />
-                                </div>
-                            ))}
-                        </div>
-                    )}
+        <div className="min-h-screen bg-white">
+            <section className="py-8">
+                <div className="mx-auto max-w-7xl px-4 space-y-2 text-center">
+                    <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Your Classmates</h1>
+                    <p className="mx-auto max-w-md text-gray-500 text-base">
+                        Browse your fellow classmates and their yearbook quotes.
+                    </p>
                 </div>
+            </section>
+            <div className="mx-auto max-w-7xl px-4 pb-12">
+                {filteredClassmates.length === 0 ? (
+                    <div className="text-center py-12">
+                        <Camera className="h-10 w-10 text-gray-300 mx-auto mb-4" />
+                        <h3 className="text-base font-medium text-gray-900 mb-2">
+                            {searchTerm ? "No classmates found" : "No classmates yet"}
+                        </h3>
+                        <p className="text-gray-400 text-sm">
+                            {searchTerm
+                                ? "Try adjusting your search terms"
+                                : "Your graduating class will appear here once they join"
+                            }
+                        </p>
+                        {searchTerm && (
+                            <Button
+                                variant="outline"
+                                onClick={() => setSearchTerm("")}
+                                className="mt-4"
+                            >
+                                Clear search
+                            </Button>
+                        )}
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-8 items-stretch">
+                        {filteredClassmates.map((classmate, index) => (
+                            <div
+                                key={classmate.id}
+                                className="flex justify-center animate-fadeInUp"
+                                style={{ animationDelay: `${index * 0.07}s` }}
+                            >
+                                <Link href={`/dashboard/student/${classmate.id}`}>
+                                    <PolaroidCard classmate={classmate} />
+                                </Link>
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
+        </div>
     );
 }
 
@@ -114,55 +112,31 @@ function PolaroidCard({ classmate }: PolaroidCardProps) {
     const [imageError, setImageError] = useState(false);
 
     return (
-        <div className="group relative h-full">
-            {/* Polaroid Card */}
-            <div className="bg-white rounded-lg shadow-lg transform transition-all duration-300 hover:scale-105 hover:shadow-xl border border-gray-200 h-full flex flex-col">
-                {/* Photo Area with Polaroid Frame */}
-                <div className="relative p-4 pb-2 flex-shrink-0">
-                    <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden border-4 border-white shadow-inner">
-                        {classmate.picture && !imageError ? (
-                            <img
-                                src={classmate.picture}
-                                alt={classmate.full_name}
-                                className="w-full h-full object-cover"
-                                onError={() => setImageError(true)}
-                            />
-                        ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-100 to-indigo-100">
-                                <div className="text-center">
-                                    <Camera className="h-12 w-12 text-gray-400 mx-auto mb-2" />
-                                    <p className="text-xs text-gray-500">No photo</p>
-                                </div>
-                            </div>
-                        )}
+        <div className="group relative overflow-hidden rounded-lg border bg-white text-gray-900 shadow-sm hover:shadow-md transition-all duration-300 w-full">
+            <div className="relative aspect-[4/5] overflow-hidden w-full">
+                {classmate.picture && !imageError ? (
+                    <Image
+                        src={classmate.picture}
+                        alt={classmate.full_name}
+                        className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
+                        onError={() => setImageError(true)}
+                        width={320}
+                        height={400}
+                    />
+                ) : (
+                    <div className="flex items-center justify-center w-full h-full bg-gray-100">
+                        <Camera className="h-10 w-10 text-gray-300" />
                     </div>
-                </div>
-
-                {/* Content Area - Only Name and Quote */}
-                <div className="p-4 pt-2 flex-1 flex flex-col">
-                    {/* Name */}
-                    <h3 className="font-bold text-lg text-gray-900 mb-3 text-center">
-                        {classmate.full_name}
-                    </h3>
-
-                    {/* Quote */}
-                    <div className="flex-1 flex items-center justify-center">
-                        {classmate.quote ? (
-                            <p className="text-sm text-gray-600 italic text-center line-clamp-3 leading-relaxed">
-                                "{classmate.quote}"
-                            </p>
-                        ) : (
-                            <p className="text-sm text-gray-400 italic text-center">
-                                No quote yet
-                            </p>
-                        )}
-                    </div>
-                </div>
+                )}
             </div>
-
-            {/* Enhanced Polaroid Shadow Effect */}
-            <div className="absolute inset-0 bg-black opacity-10 rounded-lg transform translate-y-2 scale-95 -z-10 blur-sm"></div>
-            <div className="absolute inset-0 bg-black opacity-5 rounded-lg transform translate-y-1 scale-98 -z-20"></div>
+            <div className="p-3 space-y-1">
+                <h3 className="font-semibold leading-none tracking-tight line-clamp-1 text-center text-base">
+                    {classmate.full_name}
+                </h3>
+                <p className="text-sm text-gray-500 italic line-clamp-3 text-center">
+                    {classmate.quote ? `"${classmate.quote}"` : "No quote yet"}
+                </p>
+            </div>
         </div>
     );
 }

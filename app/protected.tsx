@@ -1,7 +1,7 @@
 'use client';
+import { useEffect } from "react";
 import useAuthStore from "@/lib/store";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
 
 interface ProtectedRouteProps {
     children: React.ReactNode;
@@ -10,40 +10,24 @@ interface ProtectedRouteProps {
 
 export function ProtectedRoute({ children, allowedRoles = [] }: ProtectedRouteProps) {
     const router = useRouter();
-    const {  user,access } = useAuthStore();
-    const [isLoading, setIsLoading] = useState(true);
+    const { access, user, hydrated } = useAuthStore();
 
     useEffect(() => {
-        const handleHydration = () => {
-            setIsLoading(false);
+        if (!hydrated) return;
 
-            if (!access) {
-                router.push('/login');
-                return;
-            }
-
-            if (allowedRoles.length > 0 && user?.role && !allowedRoles.includes(user?.role)) {
-                router.push('/unauthorized');
-                return;
-            }
-        };
-
-        if (useAuthStore.persist.hasHydrated()) {
-            handleHydration();
-        } else {
-            useAuthStore.persist.onHydrate(handleHydration);
+        if (!access) {
+            router.replace('/login');
+        } else if (allowedRoles.length > 0 && user?.role && !allowedRoles.includes(user.role)) {
+            router.replace('/unauthorized');
         }
-    }, [access, user, router, allowedRoles]);
+    }, [hydrated, access, user, allowedRoles, router]);
 
-    if (isLoading) {
-        return <div>Loading...</div>;
+    if (!hydrated) {
+        return <div className="p-4">Loading session...</div>;
     }
 
-    if (!access) {
-        return null;
-    }
-
-    if (allowedRoles.length > 0 && user?.role && !allowedRoles.includes(user?.role)) {
+    if (!access) return null;
+    if (allowedRoles.length > 0 && user?.role && !allowedRoles.includes(user.role)) {
         return null;
     }
 
