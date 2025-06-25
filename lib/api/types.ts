@@ -63,6 +63,19 @@ export interface SchoolList {
     id: number;
     name: string;
     full_email_domain: string;
+    logo: string;
+}
+export interface SchoolDetails {
+    id: number;
+    name: string;
+    full_email_domain: string;
+    logo: string;
+    location: string;
+    phone: string;
+    is_active: boolean;
+    user_count: number;
+    department_count: number;
+    departments: SubSchoolList[];
 }
 
 export interface AddSchoolData {
@@ -73,7 +86,18 @@ export interface AddSchoolData {
     logo?: File;
 }
 
-export interface DepartmentList {
+export interface SubSchoolList {
     id: number;
     name: string;
+    description?: string;
+    is_active: boolean;
 }
+export interface SubSchool {
+    id: number;
+    name: string;
+    description?: string;
+    school: string;
+    school_name: string;
+    is_active: string;
+}
+

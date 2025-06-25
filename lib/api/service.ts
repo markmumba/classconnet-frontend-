@@ -1,13 +1,22 @@
-import axios, {AxiosInstance} from "axios";
-import {AddSchoolData, DepartmentList, LoginData, LoginResponse, RegisterResponse, RegistrationData, SchoolList, User} from "@/lib/api/types";
+import axios, { AxiosInstance } from "axios";
+import {
+    AddSchoolData,
+    LoginData,
+    LoginResponse,
+    RegisterResponse,
+    SchoolDetails,
+    SchoolList,
+    SubSchool, SubSchoolList,
+    User
+} from "@/lib/api/types";
 import useAuthStore from "../store";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
 const api: AxiosInstance = axios.create({
     baseURL: BASE_URL,
-    timeout: 10000, 
-    headers: {'Content-Type': "application/json"},
+    timeout: 10000,
+    headers: { 'Content-Type': "application/json" },
 })
 
 api.interceptors.request.use(
@@ -54,7 +63,7 @@ export const SchoolEndpoints = {
         const response = await api.get(`/public/schools/`);
         return response.data;
     },
-    getDepartments: async (schoolId: string): Promise<DepartmentList[]> => {
+    getDepartments: async (schoolId: string): Promise<SubSchoolList[]> => {
         const response = await api.get(`/public/departments/?school_id=${schoolId}`);
         return response.data;
     },
@@ -65,8 +74,24 @@ export const SchoolEndpoints = {
             }
         });
         return response.data;
+    },
+    getSchoolDetails: async (id: string): Promise<SchoolDetails> => {
+        const response = await api.get(`/schools/${id}/`);
+        return response.data;
+    },
+    getSchoolAdmins: async (id: string): Promise<User[]> => {
+        const response = await api.get(`/schools/${id}/admins/`);
+        return response.data;
     }
 }
+
+export const SubSchoolEndpoints = {
+    getDepartments: async(): Promise<SubSchool[]> => {
+        const response = await api.get(`/departments/`)
+        return response.data
+    }
+}
+
 
 export const UserEndpoints = {
     getUserGraduateClass: async (): Promise<User[]> => {

@@ -5,6 +5,7 @@ import { Building, Users, UserCheck, Plus, Calendar, MapPin } from "lucide-react
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 export default function SuperAdminDashboard() {
 
@@ -19,12 +20,10 @@ export default function SuperAdminDashboard() {
     // Fetch all users data
     const { data: users, isLoading: usersLoading } = useQuery({
         queryKey: ['getAllUsers'],
-        queryFn: () => UserEndpoints.getUserGraduateClass(),
+        queryFn: UserEndpoints.getUserGraduateClass,
     });
 
-    console.log(users);
-    console.log(schools);
-
+    
     // Calculate statistics
     const totalSchools = schools?.length || 0;
     const totalAdmins = users?.filter(user => user.role === 'admin').length || 0;
@@ -131,6 +130,23 @@ export default function SuperAdminDashboard() {
                                             </CardTitle>
                                             <Building className="h-5 w-5 text-blue-600" />
                                         </div>
+                                        {school.logo && (
+                                            <div className="flex items-center justify-center mt-3">
+                                                <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center">
+                                                    <Image
+                                                        src={school.logo}
+                                                        alt={`${school.name} logo`}
+                                                        width={64}
+                                                        height={64}
+                                                        className="object-cover w-full h-full"
+                                                        onError={(e) => {
+                                                            const target = e.target as HTMLImageElement;
+                                                            target.style.display = 'none';
+                                                        }}
+                                                    />
+                                                </div>
+                                            </div>
+                                        )}
                                     </CardHeader>
                                     <CardContent className="space-y-3">
                                         <div className="flex items-center text-sm text-gray-600">
@@ -144,6 +160,7 @@ export default function SuperAdminDashboard() {
                                         <Button
                                             variant="outline"
                                             className="w-full mt-3 border-blue-200 text-blue-600 hover:bg-blue-50"
+                                            onClick={() => router.push(`/dashboard/school/${school.id}`)}
                                         >
                                             View Details
                                         </Button>
