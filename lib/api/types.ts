@@ -40,22 +40,21 @@ export interface BasicUser {
     email: string;
     first_name: string;
     last_name: string;
-    school_id:string;
-    graduation_year:string;
-    role:string;
-    picture:string;
+    school_id: string;
+    graduation_year: string;
+    role: string;
+    picture: string;
 }
 
 export interface User extends BasicUser {
-    school_name:string;
-    quote:string;
-    student_id:string;
-    department:string;
-    full_name:string;
-    date_joined:string;
-    career_path:string;
-    sub_school:string;
-    major:string;
+    school_name: string;
+    quote: string;
+    student_id: string;
+    full_name: string;
+    date_joined: string;
+    career_path: string;
+    sub_school: string;
+    major: string;
 }
 
 
@@ -64,6 +63,14 @@ export interface SchoolList {
     id: number;
     name: string;
     full_email_domain: string;
+}
+
+export interface AddSchoolData {
+    name: string;
+    email_domain: string;
+    location: string;
+    phone: string;
+    logo?: File;
 }
 
 export interface DepartmentList {

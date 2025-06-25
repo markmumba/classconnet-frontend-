@@ -2,6 +2,7 @@
 import { useEffect } from "react";
 import useAuthStore from "@/lib/store";
 import { useRouter } from "next/navigation";
+import FullPageSpinner from "@/components/custom-ui/shared/fullpagespinner";
 
 interface ProtectedRouteProps {
     children: React.ReactNode;
@@ -17,13 +18,14 @@ export function ProtectedRoute({ children, allowedRoles = [] }: ProtectedRoutePr
 
         if (!access) {
             router.replace('/login');
-        } else if (allowedRoles.length > 0 && user?.role && !allowedRoles.includes(user.role)) {
+        } 
+        else if (allowedRoles.length > 0 && user?.role && !allowedRoles.includes(user.role)) {
             router.replace('/unauthorized');
         }
     }, [hydrated, access, user, allowedRoles, router]);
 
     if (!hydrated) {
-        return <div className="p-4">Loading session...</div>;
+        return <FullPageSpinner />;
     }
 
     if (!access) return null;

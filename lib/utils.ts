@@ -10,3 +10,11 @@ export const student=Role.STUDENT
 export const admin=Role.ADMIN
 export const super_admin=Role.SUPER_ADMIN
 export const all=[student,admin,super_admin]
+
+export const formatDate = (date: string) => {
+  return new Date(date).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+};
