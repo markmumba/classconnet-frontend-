@@ -57,7 +57,11 @@ export interface User extends BasicUser {
     major: string;
 }
 
-
+export interface SubSchoolAdd {
+    name: string;
+    description: string;
+    school_id?: string;
+}
 
 export interface SchoolList {
     id: number;

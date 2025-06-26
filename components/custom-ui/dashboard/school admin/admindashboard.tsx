@@ -5,14 +5,15 @@ import useAuthStore from "@/lib/store";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Building, Users, UserCheck, Plus, Calendar, MapPin, Mail, Phone, GraduationCap, BookOpen } from "lucide-react";
+import { Building, Users, UserCheck, Plus, Calendar, MapPin, Mail, Phone, GraduationCap, BookOpen, Eye } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function AdminDashboard() {
     const { user } = useAuthStore();
     const router = useRouter();
 
-    const { data: school, isPending } = useQuery({
+    const { data: school, isPending: isPendingSchool } = useQuery({
         queryKey: ["school"],
         queryFn: () => SchoolEndpoints.getSchoolDetails(user?.school_id || ""),
         enabled: !!user?.school_id
@@ -20,7 +21,7 @@ export default function AdminDashboard() {
 
     const { data: departments, isPending: isPendingDepartments } = useQuery({
         queryKey: ["departments", user?.school_id],
-        queryFn: () => SchoolEndpoints.getDepartments(user?.school_id || ""),
+        queryFn: SubSchoolEndpoints.getSubSchools,
         enabled: !!user?.school_id
     })
 
@@ -30,10 +31,10 @@ export default function AdminDashboard() {
         enabled: !!user?.school_id
     })
 
+    const threedepartments = departments?.slice(0, 3)
 
-    if (isPending || isPendingDepartments || isPendingAdmins) return <FullPageSpinner />
+    if (isPendingSchool) return <FullPageSpinner />
 
-    // Calculate statistics
     const totalStudents = school?.user_count || 0;
     const totalAdmins = admins?.length || 0;
     const totalDepartments = school?.department_count || 0;
@@ -100,6 +101,7 @@ export default function AdminDashboard() {
 
                 {/* School Information */}
                 <div className="grid md:grid-cols-2 gap-8 mb-8">
+                    <Link href={`/dashboard/school/${school?.id}`} >
                     <Card className="bg-white shadow-lg">
                         <CardHeader>
                             <CardTitle className="text-lg font-semibold text-gray-900">School Information</CardTitle>
@@ -123,6 +125,7 @@ export default function AdminDashboard() {
                             </div>
                         </CardContent>
                     </Card>
+                    </Link>
 
                     <Card className="bg-white shadow-lg">
                         <CardHeader>
@@ -167,15 +170,20 @@ export default function AdminDashboard() {
                 <div className="mb-8">
                     <div className="flex items-center justify-between mb-6">
                         <h2 className="text-xl font-semibold text-gray-900">Departments</h2>
-                        <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+
+                        <Button className="bg-blue-600 hover:bg-blue-700 text-white" onClick={() => router.push("/dashboard/add-department")}>
                             <Plus className="h-4 w-4 mr-2" />
                             Add Department
                         </Button>
+                        <Button className="bg-blue-600 hover:bg-blue-700 text-white" onClick={() => router.push("/dashboard/departments")}>
+                            <Eye className="h-4 w-4 mr-2" />
+                            View All
+                        </Button>
                     </div>
 
-                    {departments && departments.length > 0 ? (
+                    {threedepartments && threedepartments.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            {departments.map((department) => (
+                            {threedepartments.map((department) => (
                                 <Card key={department.id} className="bg-white shadow-lg hover:shadow-xl transition-all duration-300">
                                     <CardHeader className="pb-3">
                                         <div className="flex items-center justify-between">

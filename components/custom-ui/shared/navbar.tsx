@@ -108,7 +108,7 @@ export default function Navbar() {
                                 <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                                     <Avatar className="h-8 w-8">
                                         <AvatarImage
-                                            src={user?.picture || "/avatar.jpg"}
+                                            src={`${process.env.NEXT_PUBLIC_API_URL}/media/${user?.picture}` || "/avatar.jpg"}   
                                             alt={user?.first_name || "User"}
                                         />
                                         <AvatarFallback>{getUserInitials()}</AvatarFallback>

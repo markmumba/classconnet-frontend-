@@ -6,7 +6,7 @@ import {
     RegisterResponse,
     SchoolDetails,
     SchoolList,
-    SubSchool, SubSchoolList,
+    SubSchool, SubSchoolAdd, SubSchoolList,
     User
 } from "@/lib/api/types";
 import useAuthStore from "../store";
@@ -63,10 +63,7 @@ export const SchoolEndpoints = {
         const response = await api.get(`/public/schools/`);
         return response.data;
     },
-    getDepartments: async (schoolId: string): Promise<SubSchoolList[]> => {
-        const response = await api.get(`/public/departments/?school_id=${schoolId}`);
-        return response.data;
-    },
+ 
     addSchool: async (data: AddSchoolData): Promise<SchoolList> => {
         const response = await api.post(`/schools/`, data, {
             headers: {
@@ -86,11 +83,20 @@ export const SchoolEndpoints = {
 }
 
 export const SubSchoolEndpoints = {
-    getDepartments: async(): Promise<SubSchool[]> => {
+    getSubSchools: async(): Promise<SubSchool[]> => {
         const response = await api.get(`/departments/`)
+        return response.data
+    },
+    addSubSchool: async(data: SubSchoolAdd): Promise<SubSchool> => {
+        const response = await api.post(`/departments/`, data)
+        return response.data
+    },
+    getSubSchool: async(id: string): Promise<SubSchool> => {
+        const response = await api.get(`/departments/${id}/`)
         return response.data
     }
 }
+
 
 
 export const UserEndpoints = {

@@ -7,8 +7,8 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { AuthEndpoints, SchoolEndpoints } from "@/lib/api/service";
-import {  RegisterResponse, RegistrationData, SchoolList, SubSchoolList } from "@/lib/api/types";
+import { AuthEndpoints, SchoolEndpoints, SubSchoolEndpoints } from "@/lib/api/service";
+import {  RegisterResponse, RegistrationData, SchoolList, SubSchool, SubSchoolList } from "@/lib/api/types";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import useAuthStore from "@/lib/store";
@@ -82,7 +82,7 @@ export default function ClassConnectRegisterFlow() {
     const [previewImage, setPreviewImage] = useState<string | null>(null)
     const fileInputRef = useRef<HTMLInputElement>(null)
     const [schools, setSchools] = useState<SchoolList[]>([])
-    const [departments, setDepartments] = useState<SubSchoolList[]>([])
+    const [departments, setDepartments] = useState<SubSchool[]>([])
     const [selectedSchool, setSelectedSchool] = useState<SchoolList | null>(null)
 
     const schoolDomain = selectedSchool?.full_email_domain
@@ -95,8 +95,8 @@ export default function ClassConnectRegisterFlow() {
 
     const { data: departmentsData } = useQuery({
         queryKey: ["departments", formData.school],
-        queryFn: () => SchoolEndpoints.getDepartments(formData.school),
-        enabled: !!formData.school
+        queryFn: () => SubSchoolEndpoints.getSubSchools(),
+        enabled: !!formData.school 
     })
 
     useEffect(() => {
