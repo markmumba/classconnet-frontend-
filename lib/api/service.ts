@@ -1,6 +1,7 @@
 import axios, { AxiosInstance } from "axios";
 import {
     AddSchoolData,
+    createAdmin,
     LoginData,
     LoginResponse,
     RegisterResponse,
@@ -100,6 +101,10 @@ export const SubSchoolEndpoints = {
 
 
 export const UserEndpoints = {
+    createAdmin: async (admin: createAdmin): Promise<User> => {
+        const response = await api.post(`/users/`, admin)
+        return response.data
+    },
     getUserGraduateClass: async (): Promise<User[]> => {
         const response = await api.get(`/users/`);
         return response.data;

@@ -255,7 +255,7 @@ function SchoolPage({ params }: SchoolPageProps) {
                 <div className="space-y-6 pt-8 border-t">
                     <div className="flex items-center justify-between">
                         <h2 className="text-xl font-semibold">School Administrators</h2>
-                        <Button variant="outline" size="sm">
+                        <Button variant="outline" size="sm" onClick={() => router.push(`/dashboard/add-admin?schoolId=${id}`)}>
                             <Plus className="h-4 w-4 mr-2" />
                             Add Admin
                         </Button>
@@ -303,7 +303,7 @@ function SchoolPage({ params }: SchoolPageProps) {
                                 <Users className="h-12 w-12 text-gray-300 mx-auto mb-4" />
                                 <h3 className="text-lg font-medium text-gray-900 mb-2">No administrators yet</h3>
                                 <p className="text-gray-500 mb-4">This school doesn't have any administrators assigned</p>
-                                <Button variant="outline">
+                                <Button variant="outline" onClick={() => router.push(`/dashboard/add-admin?schoolId=${id}`)}>
                                     <Plus className="h-4 w-4 mr-2" />
                                     Add First Admin
                                 </Button>

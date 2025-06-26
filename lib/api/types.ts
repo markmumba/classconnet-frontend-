@@ -57,6 +57,14 @@ export interface User extends BasicUser {
     major: string;
 }
 
+export interface createAdmin {
+    email: string;
+    first_name: string;
+    last_name: string;
+    school_id: string;
+    role: string;
+}
+
 export interface SubSchoolAdd {
     name: string;
     description: string;

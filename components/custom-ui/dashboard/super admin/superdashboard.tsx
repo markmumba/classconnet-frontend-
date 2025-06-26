@@ -23,7 +23,7 @@ export default function SuperAdminDashboard() {
         queryFn: UserEndpoints.getUserGraduateClass,
     });
 
-    
+
     // Calculate statistics
     const totalSchools = schools?.length || 0;
     const totalAdmins = users?.filter(user => user.role === 'admin').length || 0;
@@ -160,7 +160,7 @@ export default function SuperAdminDashboard() {
                                         <Button
                                             variant="outline"
                                             className="w-full mt-3 border-blue-200 text-blue-600 hover:bg-blue-50"
-                                            onClick={() => router.push(`/dashboard/school/${school.id}`)}
+                                            onClick={() => router.push(`/dashboard/schools/${school.id}`)}
                                         >
                                             View Details
                                         </Button>
